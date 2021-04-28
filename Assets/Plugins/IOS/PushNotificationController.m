@@ -1,8 +1,7 @@
-#include <iostream>
-using namespace std;
 #import "PushNotificationController.h"
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
+
 
 @implementation UnityAppController (PushNotificationController)
 
@@ -33,15 +32,28 @@ using namespace std;
   swizzled = class_getInstanceMethod(
       self, @selector(WechatSignInAppController:openURL:options:));
   method_exchangeImplementations(original, swizzled);
+    
+    original =
+        class_getInstanceMethod(self, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
+    swizzled = class_getInstanceMethod(
+        self, @selector(WechatSignInAppController:didRegisterForRemoteNotificationsWithDeviceToken:));
+    method_exchangeImplementations(original, swizzled);
+   
+    
+    original =
+        class_getInstanceMethod(self, @selector(application:didFailToRegisterForRemoteNotificationsWithError:));
+    swizzled = class_getInstanceMethod(
+        self, @selector(WechatSignInAppController:didRegisterForRemoteNotificationsWithDeviceToken:));
+    method_exchangeImplementations(original, swizzled);
 }
 
 - (BOOL)WechatSignInAppController:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"当程序载入后执行");
-    //BOOL handled = [WXApi registerApp:@"wx7a3c7293fe47ea6a" universalLink:@"applinks:yingyugang.s3-ap-northeast-1.amazonaws.com"];
-    //返回True，有用，证明可以
-    //BOOL handled =  [WXApi registerApp:@"wxd930ea5d5a258f4f" universalLink:@"https://help.wechat.com/sdksample/"];
-    //NSLog(@" %s",handled ? "True" : "False");
+    
+    //UIRemoteNotificationType myTypes = UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound;
+    //   [[UIApplication sharedApplication] registerForRemoteNotificationTypes:myTypes];
+    [[UIApplication sharedApplication]  registerForRemoteNotifications];
   return  [self WechatSignInAppController:application
             didFinishLaunchingWithOptions:launchOptions];
 }
@@ -70,12 +82,32 @@ using namespace std;
     
     BOOL handled =
         [self WechatSignInAppController:app openURL:url options:options];
-    if(isAuthorization){
-        NSLog(@"%@", url.absoluteString);
-        const char *str2=[url.absoluteString UTF8String];
-        ct(str2);
-        isAuthorization = false;
-    }
     return handled;
+}
+
+- (void)application:(UIApplication *)application
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
+    NSString* str = [self fetchDeviceToken:deviceToken];
+    NSLog(@"%@",str);
+}
+
+- (void)application:(UIApplication *)app
+        didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
+    // The token is not currently available.
+    NSLog(@"Remote notification support is unavailable due to error: %@", err);  
+}
+
+
+- (NSString *)fetchDeviceToken:(NSData *)deviceToken {
+    NSUInteger len = deviceToken.length;
+    if (len == 0) {
+        return nil;
+    }
+    const unsigned char *buffer = deviceToken.bytes;
+    NSMutableString *hexString  = [NSMutableString stringWithCapacity:(len * 2)];
+    for (int i = 0; i < len; ++i) {
+        [hexString appendFormat:@"%02x", buffer[i]];
+    }
+    return [hexString copy];
 }
 @end

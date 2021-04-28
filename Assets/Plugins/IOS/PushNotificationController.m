@@ -53,7 +53,7 @@
     
     //UIRemoteNotificationType myTypes = UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound;
     //   [[UIApplication sharedApplication] registerForRemoteNotificationTypes:myTypes];
-    [[UIApplication sharedApplication]  registerForRemoteNotifications];
+    [self registerRemoteNotifications1];
   return  [self WechatSignInAppController:application
             didFinishLaunchingWithOptions:launchOptions];
 }
@@ -89,6 +89,18 @@
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
     NSString* str = [self fetchDeviceToken:deviceToken];
     NSLog(@"%@",str);
+    
+    
+    NSString *token = [[[deviceToken description]
+                           stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]]
+                           stringByReplacingOccurrencesOfString:@" "
+                           withString:@""];
+       NSLog(@"DeviceToken string, %@", token);
+       [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+
+    
+    
+    
 }
 
 - (void)application:(UIApplication *)app
@@ -110,4 +122,27 @@
     }
     return [hexString copy];
 }
+
+- (void)registerRemoteNotifications1 {
+    // 区分是否是 iOS8 or later
+    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)]) {
+        // 这里 types 可以自定义，如果 types 为 0，那么所有的用户通知均会静默的接收，系统不会给用户任何提示(当然，App 可以自己处理并给出提示)
+        UIUserNotificationType types = (UIUserNotificationType) (UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert);
+        // 这里 categories 可暂不深入，本文后面会详细讲解。
+        UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+        // 当应用安装后第一次调用该方法时，系统会弹窗提示用户是否允许接收通知
+        [[UIApplication sharedApplication] registerUserNotificationSettings:mySettings];
+    } else {
+        UIRemoteNotificationType types = UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound;
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:types];
+    }
+}
+
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(nonnull UIUserNotificationSettings *)notificationSettings {
+    // Register for remote notifications.
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
+}
+
+
+
 @end

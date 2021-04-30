@@ -8,11 +8,16 @@ typedef void(*CallBack)(const char* p);
 CallBack notificationCallBack;
 CallBack deviceTokenCallBack;
 id thisClass;
+char* launchNotification;
 
 void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
 {
     deviceTokenCallBack = deviceTokenCB;
     notificationCallBack = notificationCB;
+    if(launchNotification != NULL){
+        notificationCB(launchNotification);
+        launchNotification = NULL;
+    }
     [thisClass registerRemoteNotifications];
 }
 
@@ -67,7 +72,8 @@ void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
     	NSData *infoData = [NSJSONSerialization dataWithJSONObject:remoteNotif options:0 error:nil];
     	NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
     	[UIApplication sharedApplication].applicationIconBadgeNumber -= 1;
-        notificationCallBack([info UTF8String]);
+        launchNotification = [info UTF8String];
+        //notificationCallBack([info UTF8String]);
 	}
     return  [self WechatSignInAppController:application
             didFinishLaunchingWithOptions:launchOptions];
@@ -102,8 +108,8 @@ void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
     NSString* str = [self fetchDeviceToken:deviceToken];
     NSLog(@"%@",str);
-    deviceTokenCallBack([str UTF8String]);
-    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+       deviceTokenCallBack([str UTF8String]);
+       [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
 - (void)application:(UIApplication *)app
@@ -118,8 +124,12 @@ void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
    
     NSData *infoData = [NSJSONSerialization dataWithJSONObject:userInfo options:0 error:nil];
     NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
-     NSLog(@"%@",info);
-     notificationCallBack([info UTF8String]);
+    NSLog(@"%@",info);
+    if(notificationCallBack==NULL){
+        //launchNotification = [info UTF8String];
+    }else{
+        notificationCallBack([info UTF8String]);
+    }
     // 这里将角标数量减一，注意系统不会帮助我们处理角标数量
     application.applicationIconBadgeNumber = application.applicationIconBadgeNumber - 1;
 }

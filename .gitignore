@@ -2,3 +2,5 @@ Library/
 Logs/
 Temp/
 Build
+Assembly-CSharp.csproj
+obj/

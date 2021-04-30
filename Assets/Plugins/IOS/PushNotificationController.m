@@ -102,13 +102,8 @@ void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
     NSString* str = [self fetchDeviceToken:deviceToken];
     NSLog(@"%@",str);
-    NSString *token = [[[deviceToken description]
-                           stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]]
-                           stringByReplacingOccurrencesOfString:@" "
-                           withString:@""];
-       NSLog(@"DeviceToken string, %@", token);
-       deviceTokenCallBack([token UTF8String]);
-       [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    deviceTokenCallBack([str UTF8String]);
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
 - (void)application:(UIApplication *)app

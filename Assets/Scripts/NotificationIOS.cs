@@ -1,18 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
+using System.Runtime.InteropServices;
 
-public class NotificationIOS : MonoBehaviour
+public class NotificationIOS 
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    delegate void CallBack(IntPtr param);
 
-    // Update is called once per frame
-    void Update()
+    [DllImport("__Internal")]
+    private static extern void Enroll();
+
+    public static void Register()
     {
-        
+        Enroll();
     }
 }

@@ -2,20 +2,16 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
-
-extern "C" {
-  
-    typedef void(*CallBack)(const char* p);
-    CallBack notificationCallBack;
-
-    void Enroll()
-    {
-        [self registerRemoteNotifications];
-    }
-}
-
-
 @implementation UnityAppController (PushNotificationController)
+
+typedef void(*CallBack)(const char* p);
+CallBack notificationCallBack;
+id thisClass;
+
+void Enroll()
+{
+    [thisClass registerRemoteNotifications];
+}
 
 /*
  Called when the category is loaded.  This is where the methods are swizzled
@@ -62,7 +58,7 @@ extern "C" {
 - (BOOL)WechatSignInAppController:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"当程序载入后执行");
-
+    thisClass = self;
     NSDictionary *remoteNotif = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
 	if (remoteNotif) {
     	NSData *infoData = [NSJSONSerialization dataWithJSONObject:remoteNotif options:0 error:nil];

@@ -3,6 +3,18 @@
 #import <objc/runtime.h>
 
 
+extern "C" {
+  
+    typedef void(*CallBack)(const char* p);
+    CallBack notificationCallBack;
+
+    void Enroll()
+    {
+        [self registerRemoteNotifications];
+    }
+}
+
+
 @implementation UnityAppController (PushNotificationController)
 
 /*
@@ -50,13 +62,11 @@
 - (BOOL)WechatSignInAppController:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"当程序载入后执行");
-    [self registerRemoteNotifications1];
 
     NSDictionary *remoteNotif = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
 	if (remoteNotif) {
     	NSData *infoData = [NSJSONSerialization dataWithJSONObject:remoteNotif options:0 error:nil];
     	NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
-    	[self.windowRootController displayNotification:[NSString stringWithFormat:@"From didFinishLaunch: %@", info]];
     	[UIApplication sharedApplication].applicationIconBadgeNumber -= 1;
 	}
     return  [self WechatSignInAppController:application
@@ -83,8 +93,6 @@
 - (BOOL)WechatSignInAppController:(UIApplication *)app
                           openURL:(NSURL *)url
                           options:(NSDictionary *)options {
-    
-    
     BOOL handled =
         [self WechatSignInAppController:app openURL:url options:options];
     return handled;
@@ -94,18 +102,12 @@
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
     NSString* str = [self fetchDeviceToken:deviceToken];
     NSLog(@"%@",str);
-    
-    
     NSString *token = [[[deviceToken description]
                            stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]]
                            stringByReplacingOccurrencesOfString:@" "
                            withString:@""];
        NSLog(@"DeviceToken string, %@", token);
        [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
-
-    
-    
-    
 }
 
 - (void)application:(UIApplication *)app
@@ -121,9 +123,8 @@
     NSData *infoData = [NSJSONSerialization dataWithJSONObject:userInfo options:0 error:nil];
     NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
      NSLog(@"%@",info);
-    [self.windowRootController displayNotification:[NSString stringWithFormat:@"From didReceiveRemoteNotification: %@", info]];
     // 这里将角标数量减一，注意系统不会帮助我们处理角标数量
-    application.applicationIconBadgeNumber = notification.applicationIconBadgeNumber - 1;
+    application.applicationIconBadgeNumber = application.applicationIconBadgeNumber - 1;
 }
 
 - (NSString *)fetchDeviceToken:(NSData *)deviceToken {
@@ -139,7 +140,7 @@
     return [hexString copy];
 }
 
-- (void)registerRemoteNotifications1 {
+- (void)registerRemoteNotifications {
     // 区分是否是 iOS8 or later
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)]) {
         // 这里 types 可以自定义，如果 types 为 0，那么所有的用户通知均会静默的接收，系统不会给用户任何提示(当然，App 可以自己处理并给出提示)

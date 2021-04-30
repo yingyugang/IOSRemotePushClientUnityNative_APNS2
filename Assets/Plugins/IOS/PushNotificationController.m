@@ -6,10 +6,13 @@
 
 typedef void(*CallBack)(const char* p);
 CallBack notificationCallBack;
+CallBack deviceTokenCallBack;
 id thisClass;
 
-void Enroll()
+void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
 {
+    deviceTokenCallBack = deviceTokenCB;
+    notificationCallBack = notificationCB;
     [thisClass registerRemoteNotifications];
 }
 
@@ -64,6 +67,7 @@ void Enroll()
     	NSData *infoData = [NSJSONSerialization dataWithJSONObject:remoteNotif options:0 error:nil];
     	NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
     	[UIApplication sharedApplication].applicationIconBadgeNumber -= 1;
+        notificationCallBack([info UTF8String]);
 	}
     return  [self WechatSignInAppController:application
             didFinishLaunchingWithOptions:launchOptions];
@@ -103,6 +107,7 @@ void Enroll()
                            stringByReplacingOccurrencesOfString:@" "
                            withString:@""];
        NSLog(@"DeviceToken string, %@", token);
+       deviceTokenCallBack([token UTF8String]);
        [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
@@ -119,6 +124,7 @@ void Enroll()
     NSData *infoData = [NSJSONSerialization dataWithJSONObject:userInfo options:0 error:nil];
     NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
      NSLog(@"%@",info);
+     notificationCallBack([info UTF8String]);
     // 这里将角标数量减一，注意系统不会帮助我们处理角标数量
     application.applicationIconBadgeNumber = application.applicationIconBadgeNumber - 1;
 }

@@ -1,23 +1,25 @@
 #import "PushNotificationController.h"
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
+#import "UserNotifications/UserNotifications.h"
 
 @implementation UnityAppController (PushNotificationController)
 
 typedef void(*CallBack)(const char* p);
-CallBack notificationCallBack;
+typedef void(*CallBack1)(int p);
+CallBack1 notificationCallBack;
 CallBack deviceTokenCallBack;
 id thisClass;
-char* launchNotification;
+const char* launchNotification;
+int length;
 
-void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
+void Enroll(CallBack deviceTokenCB,CallBack1 notificationCB)
 {
     deviceTokenCallBack = deviceTokenCB;
     notificationCallBack = notificationCB;
-    if(launchNotification != NULL){
-        notificationCB(launchNotification);
-        launchNotification = NULL;
-    }
+    
+    notificationCB(0);
+    
     [thisClass registerRemoteNotifications];
 }
 
@@ -67,17 +69,22 @@ void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"当程序载入后执行");
     thisClass = self;
-    NSDictionary *remoteNotif = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-	if (remoteNotif) {
-    	NSData *infoData = [NSJSONSerialization dataWithJSONObject:remoteNotif options:0 error:nil];
-    	NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
-    	[UIApplication sharedApplication].applicationIconBadgeNumber -= 1;
-        launchNotification = [info UTF8String];
-        //notificationCallBack([info UTF8String]);
-	}
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate = self;
+    [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge) completionHandler:^(BOOL granted,NSError * _Nullable error){
+        if(!error){
+            NSLog(@"OK");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                    [[UIApplication sharedApplication] registerForRemoteNotifications];
+                });
+        }
+    }];
     return  [self WechatSignInAppController:application
             didFinishLaunchingWithOptions:launchOptions];
 }
+
+
+
 
 /**
  * Handle the auth URL
@@ -108,7 +115,12 @@ void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
     NSString* str = [self fetchDeviceToken:deviceToken];
     NSLog(@"%@",str);
-       deviceTokenCallBack([str UTF8String]);
+    NSString *token = [[[deviceToken description]
+                           stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]]
+                           stringByReplacingOccurrencesOfString:@" "
+                           withString:@""];
+       NSLog(@"DeviceToken string, %@", token);
+       deviceTokenCallBack([token UTF8String]);
        [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
@@ -125,11 +137,23 @@ void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
     NSData *infoData = [NSJSONSerialization dataWithJSONObject:userInfo options:0 error:nil];
     NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
     NSLog(@"%@",info);
+    launchNotification = [info UTF8String];
+    length = info.length;
+    notificationCallBack(length);
+    /*
     if(notificationCallBack==NULL){
-        //launchNotification = [info UTF8String];
+        launchNotification = [info UTF8String];
+        length = info.length;
     }else{
-        notificationCallBack([info UTF8String]);
-    }
+        //notificationCallBack([info UTF8String]);
+        length = info.length;
+        char charValue = length+'0';
+        char *pChar = &charValue;
+        notificationCallBack(pChar);
+        
+        
+       // notificationCallBack([info UTF8String]);
+    }*/
     // 这里将角标数量减一，注意系统不会帮助我们处理角标数量
     application.applicationIconBadgeNumber = application.applicationIconBadgeNumber - 1;
 }

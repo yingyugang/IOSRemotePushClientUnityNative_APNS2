@@ -21,8 +21,10 @@ typedef void(*CallBack)(const char* p);
     NSLog( @"willPresentNotification" );
     NSLog(@"%@", notification.request.content.userInfo);
     NSData *infoData = [NSJSONSerialization dataWithJSONObject:notification.request.content.userInfo options:0 error:nil];
-    NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
-    self.callBack([info UTF8String]);
+    self.lastNotification = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
+    if(self.callBack!=nil){
+        self.callBack([self.lastNotification UTF8String]);
+    }
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
@@ -32,7 +34,9 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
     NSLog( @"didReceiveNotificationResponse" );
     NSLog(@"%@", response.notification.request.content.userInfo);
     NSData *infoData = [NSJSONSerialization dataWithJSONObject:response.notification.request.content.userInfo options:0 error:nil];
-    NSString *info = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
-    self.callBack([info UTF8String]);
+    self.lastNotification = [[NSString alloc] initWithData:infoData encoding:NSUTF8StringEncoding];
+    if(self.callBack!=nil){
+        self.callBack([self.lastNotification UTF8String]);
+    }
 }
 @end

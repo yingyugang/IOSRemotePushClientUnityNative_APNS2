@@ -9,14 +9,22 @@
 CallBack notificationCallBack;
 CallBack deviceTokenCallBack;
 id thisClass;
-const char* launchNotification;
-int length;
 
-void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
+void enroll(CallBack deviceTokenCB,CallBack notificationCB)
 {
     deviceTokenCallBack = deviceTokenCB;
     notificationCallBack = notificationCB;
     [thisClass registerRemoteNotifications];
+}
+
+const char* getLastNotification(){
+    NSString *lastNotification = [PushNotificationManager sharedInstance].lastNotification;
+    if(lastNotification!=nil){
+        return [lastNotification UTF8String];
+    }else{
+        const char *str = "";
+        return str;
+    }
 }
 
 /*
@@ -31,16 +39,17 @@ void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
       self, @selector(application:didFinishLaunchingWithOptions:));
   swizzled = class_getInstanceMethod(
       self,
-      @selector(WechatSignInAppController:didFinishLaunchingWithOptions:));
+      @selector(PushNotificationController:didFinishLaunchingWithOptions:));
   method_exchangeImplementations(original, swizzled);
 }
-
-- (BOOL)WechatSignInAppController:(UIApplication *)application
+UNUserNotificationCenter *center;
+- (BOOL)PushNotificationController:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"当程序载入后执行");
     thisClass = self;
-
-    return  [self WechatSignInAppController:application
+    center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate = [PushNotificationManager sharedInstance];
+    return  [self PushNotificationController:application
             didFinishLaunchingWithOptions:launchOptions];
 }
 
@@ -78,9 +87,10 @@ void Enroll(CallBack deviceTokenCB,CallBack notificationCB)
  * リモートプッシューを登録
  */
 - (void)registerRemoteNotifications {
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    center.delegate = [PushNotificationManager sharedInstance];
-    [PushNotificationManager sharedInstance].callBack = notificationCallBack;
+    PushNotificationManager *pushNotificationManager = [PushNotificationManager sharedInstance];
+    
+    pushNotificationManager.callBack = notificationCallBack;
+    
     [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge) completionHandler:^(BOOL granted,NSError * _Nullable error){
         if(!error){
             NSLog(@"OK");

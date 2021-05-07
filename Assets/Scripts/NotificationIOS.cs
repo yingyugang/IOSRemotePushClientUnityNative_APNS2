@@ -8,7 +8,10 @@ public class NotificationIOS
     delegate void CallBack(IntPtr param);
 
     [DllImport("__Internal")]
-    private static extern void Enroll(CallBack deviceTokenCB, CallBack notificationCB);
+    private static extern void enroll(CallBack deviceTokenCB, CallBack notificationCB);
+
+    [DllImport("__Internal")]
+    private static extern string getLastNotification();
 
     static Action<string> deviceTokenCB;
     static Action<string> notificationCB;
@@ -16,7 +19,7 @@ public class NotificationIOS
     {
         NotificationIOS.deviceTokenCB = deviceTokenCB;
         NotificationIOS.notificationCB = notificationCB;
-        Enroll(DeviceTokenCallBack, NotificationCallBack);
+        enroll(DeviceTokenCallBack, NotificationCallBack);
     }
 
     [MonoPInvokeCallback(typeof(CallBack))]
@@ -31,5 +34,9 @@ public class NotificationIOS
     {
         string notification = Marshal.PtrToStringAuto(param);
         notificationCB?.Invoke(notification);
+    }
+
+    public static string GetLastNotification() {
+        return getLastNotification();
     }
 }

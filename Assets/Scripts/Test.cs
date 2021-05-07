@@ -9,6 +9,7 @@ public class Test : MonoBehaviour
 
     private void Awake()
     {
+        notificationTxt.text = NotificationIOS.GetLastNotification();
         enrollButton.onClick.AddListener(() =>
         {
             NotificationIOS.Register((token) =>

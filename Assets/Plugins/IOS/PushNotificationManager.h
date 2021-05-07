@@ -4,4 +4,5 @@
 @interface PushNotificationManager : NSObject<UNUserNotificationCenterDelegate>
 + (instancetype)sharedInstance;
 @property CallBack callBack;
+@property NSString *lastNotification;
 @end

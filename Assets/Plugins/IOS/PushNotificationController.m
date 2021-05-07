@@ -19,12 +19,14 @@ void enroll(CallBack deviceTokenCB,CallBack notificationCB)
 
 const char* getLastNotification(){
     NSString *lastNotification = [PushNotificationManager sharedInstance].lastNotification;
+    const char *str = "";
     if(lastNotification!=nil){
-        return [lastNotification UTF8String];
-    }else{
-        const char *str = "";
-        return str;
+        str = [lastNotification UTF8String];
     }
+    char* retStr = (char*)malloc(strlen(str) + 1);
+    strcpy(retStr, str);
+    retStr[strlen(str)] = '\0';
+    return retStr;
 }
 
 /*
@@ -88,9 +90,7 @@ UNUserNotificationCenter *center;
  */
 - (void)registerRemoteNotifications {
     PushNotificationManager *pushNotificationManager = [PushNotificationManager sharedInstance];
-    
     pushNotificationManager.callBack = notificationCallBack;
-    
     [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge) completionHandler:^(BOOL granted,NSError * _Nullable error){
         if(!error){
             NSLog(@"OK");

@@ -61,6 +61,10 @@ UNUserNotificationCenter *center;
     NSLog(@"%@",token);
     deviceTokenCallBack([token UTF8String]);
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@",@"http://192.168.10.100:8080/getDeviceToken?deviceToken=",token]];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    NSString *ret = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"ret=%@", ret);
 }
 
 - (void)application:(UIApplication *)app

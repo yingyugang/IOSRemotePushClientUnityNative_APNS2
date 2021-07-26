@@ -1,6 +1,6 @@
 # IOSPushNative
 
-PushNotificationController.m
+PushNotificationController.m and
 PushNotificationManager.m
 Used for IOS remote push.
 

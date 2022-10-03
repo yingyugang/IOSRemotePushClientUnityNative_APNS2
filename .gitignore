@@ -4,3 +4,5 @@ Temp/
 Build
 Assembly-CSharp.csproj
 obj/
+.vs
+Test

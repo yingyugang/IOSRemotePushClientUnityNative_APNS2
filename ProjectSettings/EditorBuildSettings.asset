@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/TestDPU.unity
+    guid: bc515af8a581e44a091a356df1f3d3c1
+  - enabled: 1
     path: Assets/Scenes/TestPushNotification.unity
     guid: 55ed2f0212403431194b58e96484d183
   m_configObjects: {}

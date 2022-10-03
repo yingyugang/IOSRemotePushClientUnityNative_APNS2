@@ -543,7 +543,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b32cea94497f4b50a35be83523be814, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  btnConnet: {fileID: 1923467636}
+  btnConnect: {fileID: 1923467636}
+  text: {fileID: 76283583}
 --- !u!1 &1913031284
 GameObject:
   m_ObjectHideFlags: 0

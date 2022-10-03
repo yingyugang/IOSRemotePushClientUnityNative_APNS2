@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class UDPTest : MonoBehaviour
 {
-    public Button btnConnet;
+    public Button btnConnect;
     public Text text;
 
     delegate void CallBack(IntPtr param);
@@ -14,8 +14,8 @@ public class UDPTest : MonoBehaviour
 
     private void Awake()
     {
-        btnConnet.onClick.AddListener(()=> {
-            connet(DeviceTokenCallBack);
+        btnConnect.onClick.AddListener(()=> {
+            initUDP(DeviceTokenCallBack);
         });
         OnCallback = (str) =>
         {
@@ -24,7 +24,7 @@ public class UDPTest : MonoBehaviour
     }
 
     [DllImport("__Internal")]
-    private static extern void connet(CallBack deviceTokenCB);
+    private static extern void initUDP(CallBack deviceTokenCB);
 
     [MonoPInvokeCallback(typeof(CallBack))]
     static void DeviceTokenCallBack(IntPtr param)

@@ -3,10 +3,8 @@
 #import <objc/runtime.h>
 #import "UserNotifications/UserNotifications.h"
 #import "PushNotificationManager.h"
-#import "Unity-iPhone.h"
 
 @implementation UnityAppController (PushNotificationController)
-
 CallBack notificationCallBack;
 CallBack deviceTokenCallBack;
 CallBack receiveMsgCallback;
@@ -14,9 +12,6 @@ id thisClass;
 
 void enroll(CallBack deviceTokenCB,CallBack notificationCB)
 {
-    UDPController *controller = [UDPController new];
-    [controller connet];
-    
     deviceTokenCallBack = deviceTokenCB;
     notificationCallBack = notificationCB;
     [thisClass registerRemoteNotifications];
@@ -33,14 +28,6 @@ const char* getLastNotification(){
     retStr[strlen(str)] = '\0';
     return retStr;
 }
-
-void connect(CallBack onReceive)
-{
-    receiveMsgCallback = onReceive;
-    UDPController *controller = [UDPController new];
-    [controller connet];
-}
-
 
 /*
  Called when the category is loaded.  This is where the methods are swizzled

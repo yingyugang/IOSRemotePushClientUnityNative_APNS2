@@ -1,10 +1,10 @@
-PushNotificationController.m and
-PushNotificationManager.m
-Used for IOS remote push.
-用於接收遠程通知。
+PushNotificationController.m and<br>
+PushNotificationManager.m<br>
+Used for IOS remote push.<br>
+用於接收遠程通知。<br>
 
-NotificationService.swift
-Used for show image/voice when received remote push. 
-用於在收到通知過後，顯示圖片或者視頻文件。
+NotificationService.swift<br>
+Used for show image/voice when received remote push. <br>
+用於在收到通知過後，顯示圖片或者視頻文件。<br>
 
 
